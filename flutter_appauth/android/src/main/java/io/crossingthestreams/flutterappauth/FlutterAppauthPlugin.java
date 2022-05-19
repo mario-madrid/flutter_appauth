@@ -7,6 +7,8 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.browser.customtabs.TrustedWebUtils;
 
 import net.openid.appauth.AppAuthConfiguration;
 import net.openid.appauth.AuthorizationException;
@@ -359,7 +361,10 @@ public class FlutterAppauthPlugin implements FlutterPlugin, MethodCallHandler, P
         }
 
         AuthorizationService authorizationService = allowInsecureConnections ? insecureAuthorizationService : defaultAuthorizationService;
-        Intent authIntent = authorizationService.getAuthorizationRequestIntent(authRequestBuilder.build());
+        CustomTabsIntent customTabsIntent = authorizationService.createCustomTabsIntentBuilder().build();
+        customTabsIntent.intent.putExtra(TrustedWebUtils.EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY, true);
+        Intent authIntent = authorizationService.getAuthorizationRequestIntent(authRequestBuilder.build(), customTabsIntent);
+        authIntent.putExtra(TrustedWebUtils.EXTRA_LAUNCH_AS_TRUSTED_WEB_ACTIVITY, true);
         mainActivity.startActivityForResult(authIntent, exchangeCode ? RC_AUTH_EXCHANGE_CODE : RC_AUTH);
     }
 
